@@ -13,55 +13,57 @@ const Orders = () => {
             }
         })
             .then(res => {
-                if(res.status === 401 || res.status === 403){
-                    logOut()
+                if (res.status === 401 || res.status === 403) {
+                    return logOut();
                 }
-                return res.json()
+                return res.json();
             })
             .then(data => {
-                // console.log('received', data)
-                setOrders(data)
+                setOrders(data);
             })
-    }, [user?.email])
+    }, [user?.email, logOut])
 
-    const handleDelete = id =>{
+    const handleDelete = id => {
         const proceed = window.confirm('Are you sure, you want to cancel this order');
-        if(proceed){
+        if (proceed) {
             fetch(`http://localhost:5000/orders/${id}`, {
-                method: 'DELETE'
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                if (data.deletedCount > 0){
-                    alert('deleted successfully');
-                    const remaining = orders.filter(odr => odr._id !== id);
-                    setOrders(remaining);
+                method: 'DELETE',
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem('genius-token')}`
                 }
             })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.deletedCount > 0) {
+                        alert('deleted successfully');
+                        const remaining = orders.filter(odr => odr._id !== id);
+                        setOrders(remaining);
+                    }
+                })
         }
     }
 
     const handleStatusUpdate = id => {
         fetch(`http://localhost:5000/orders/${id}`, {
-            method: 'PATCH', 
+            method: 'PATCH',
             headers: {
-                'content-type': 'application/json'
+                'content-type': 'application/json',
+                authorization: `Bearer ${localStorage.getItem('genius-token')}`
             },
-            body: JSON.stringify({status: 'Approved'})
+            body: JSON.stringify({ status: 'Approved' })
         })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            if(data.modifiedCount > 0) {
-                const remaining = orders.filter(odr => odr._id !== id);
-                const approving = orders.find(odr => odr._id === id);
-                approving.status = 'Approved'
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                if (data.modifiedCount > 0) {
+                    const remaining = orders.filter(odr => odr._id !== id);
+                    const approving = orders.find(odr => odr._id === id);
+                    approving.status = 'Approved'
 
-                const newOrders = [approving, ...remaining];
-                setOrders(newOrders);
-            }
-        })
+                    const newOrders = [approving, ...remaining];
+                    setOrders(newOrders);
+                }
+            })
     }
 
     return (
