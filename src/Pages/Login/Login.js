@@ -20,7 +20,7 @@ const Login = () => {
         login(email, password)
             .then(result => {
                 const user = result.user;
-                
+
 
                 const currentUser = {
                     email: user.email
@@ -36,14 +36,14 @@ const Login = () => {
                     },
                     body: JSON.stringify(currentUser)
                 })
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data);
-                    // local storage is the easiest but not the best place to store jwt token
-                    localStorage.setItem('genius-token', data.token);
-                })
-
-                // navigate(from, { replace: true });
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data);
+                        // local storage is the easiest but not the best place to store jwt token
+                        localStorage.setItem('genius-token', data.token);
+                        navigate(from, { replace: true });
+                    });
+                
             })
             .catch(error => console.log(error));
     }
